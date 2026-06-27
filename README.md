@@ -25,4 +25,6 @@ python.py ./main.py --dataset davis --file_path Data/dti_lists/davis/dti.csv --n
 
 If `--node_feature_path` is not provided, `main.py` will generate features automatically first.
 
-Thank you.
+Contact：
+
+For questions or discussions, please feel free to open an issue or contact the authors.
