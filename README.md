@@ -5,7 +5,7 @@ This directory keeps 4 core files:
 
 - `main.py`: main entry
 - `features.py`: drug/protein attribute feature generation
-- `wavegc_model.py`: model implementation
+- `waveas_model.py`: model implementation
 - `trainer.py`: training and evaluation
 
 ## Run
