@@ -106,7 +106,7 @@ class IdentityEigenEncoding(nn.Module):
         return self.proj(eigvals.unsqueeze(-1))
 
 
-class WaveGCSpectralGenerator(nn.Module):
+class WaveASSpectralGenerator(nn.Module):
     def __init__(self, hidden_dim, num_n=5, num_J=3, pre_s=None, nheads=4, dropout=0.1, tight_frames=False, use_eigen_encoding=True):
         super().__init__()
         self.num_n = num_n
@@ -240,7 +240,7 @@ class WaveGCSpectralGenerator(nn.Module):
         return filter_signals
 
 
-class WaveGCSpectralBlock(nn.Module):
+class WaveASSpectralBlock(nn.Module):
     def __init__(
         self,
         hidden_dim,
@@ -263,7 +263,7 @@ class WaveGCSpectralBlock(nn.Module):
         self.mlp_domain = mlp_domain
         self.share_spectral_mlp = bool(share_spectral_mlp)
         self.disable_post_filter_mlp = bool(disable_post_filter_mlp)
-        self.generator = WaveGCSpectralGenerator(
+        self.generator = WaveASSpectralGenerator(
             hidden_dim=hidden_dim,
             num_n=num_n,
             num_J=max(0, num_scales - 1),
@@ -348,7 +348,7 @@ class WaveGCSpectralBlock(nn.Module):
 
     def _build_filter_bank(self, device, dtype):
         if self._eigvals is None or self._eigvecs is None:
-            raise RuntimeError("WaveGCSpectralBlock requires eigvals/eigvecs before forward.")
+            raise RuntimeError("WaveASSpectralBlock requires eigvals/eigvecs before forward.")
         eigvals = self._eigvals.to(device=device, dtype=dtype).reshape(-1)
         eigvecs = self._eigvecs.to(device=device, dtype=dtype)
         if eigvecs.dim() != 2 or eigvecs.size(1) != eigvals.numel():
@@ -456,7 +456,7 @@ class WaveGCSpectralBlock(nn.Module):
         return out
 
 
-class WaveGCSpectralLinkPredictor(nn.Module, NodeFeatureMixin):
+class WaveASLinkPredictor(nn.Module, NodeFeatureMixin):
     def __init__(
         self,
         num_nodes,
@@ -544,7 +544,7 @@ class WaveGCSpectralLinkPredictor(nn.Module, NodeFeatureMixin):
         self.input_proj = nn.Linear(emb_dim, hidden_dim)
         self.blocks = nn.ModuleList(
             [
-                WaveGCSpectralBlock(
+                WaveASSpectralBlock(
                     hidden_dim=hidden_dim,
                     dropout=dropout,
                     num_scales=num_scales,
@@ -856,7 +856,7 @@ class WaveGCSpectralLinkPredictor(nn.Module, NodeFeatureMixin):
 
 
 MODEL_REGISTRY = {
-    "wavegc_spectral": WaveGCSpectralLinkPredictor,
+    "WaveAS": WaveASLinkPredictor,
 }
 
 
@@ -880,9 +880,9 @@ def build_model(
     graph_branch_ae_latent_dim=64,
     disable_post_filter_mlp=False,
 ):
-    if model_name != "wavegc_spectral":
-        raise ValueError("Only 'wavegc_spectral' is kept in the final paper-aligned version.")
-    return WaveGCSpectralLinkPredictor(
+    if model_name != "WaveAS":
+        raise ValueError("Only 'WaveAS' is kept in the final paper-aligned version.")
+    return WaveASLinkPredictor(
         num_nodes=num_nodes,
         node_features=node_features,
         emb_dim=emb_dim,
